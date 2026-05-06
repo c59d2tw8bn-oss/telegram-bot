@@ -21,7 +21,14 @@ bot.start(async (ctx) => {
       ...Markup.inlineKeyboard([
         // SỬA TẠI ĐÂY: Dùng nút URL để bấm một phát là nhảy sang bot kia luôn, không bị xoay vòng
         [Markup.button.url("➡️ Tham gia ngay", JOIN_LINK)],
-// Xử lý khi người dùng bấm nút "Tham gia ngay"
+        // Thêm một nút xác nhận riêng để người dùng bấm sau khi đã tham gia
+        [Markup.button.callback("✅ Tôi đã tham gia xong", "joined")]
+      ]),
+    }
+  );
+});
+
+// Xử lý khi người dùng bấm nút "Tôi đã tham gia xong"
 bot.action("joined", async (ctx) => {
   try {
     // Luôn trả lời Telegram ngay lập tức để tắt biểu tượng "đang tải"
