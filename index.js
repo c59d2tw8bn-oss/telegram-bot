@@ -15,7 +15,7 @@ const RETURN_LINK = "https://t.me/loketgoldvip_bot?start=done";
 
 const GROUP_LINKS = [
   "https://t.me/nhomfreene",
-  "https://t.me/dong18au"
+  "https://t.me/donggdamm18"
 ];
 
 // 👉 lưu user (tạm thời)
