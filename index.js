@@ -12,25 +12,27 @@ const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 const JOIN_LINK = "https://t.me/Yuicsa_bot?start=locketref_7936179657";
 const GROUP_LINKS = ["https://t.me/nhomfreene", "https://t.me/dong18au"];
 
+// BƯỚC 1: Chỉ hiện duy nhất 1 nút Tham Gia
 bot.start(async (ctx) => {
   try {
     await ctx.reply(
-      "👋 Chào mừng bạn!\n\nĐể nhận link nhóm, bạn vui lòng thực hiện theo các bước bên dưới:",
+      "👋 Chào mừng bạn!\n\nVui lòng bấm nút bên dưới để tham gia trước nhé:",
       Markup.inlineKeyboard([
-        [Markup.button.callback("➡️ Bước 1: Lấy link tham gia", "step1")]
+        [Markup.button.callback("➡️ Bước 1: Tham gia ngay", "step1")]
       ])
     );
   } catch (e) { console.log(e) }
 });
 
+// BƯỚC 2: Khi bấm nút 1, Bot sẽ tự chuyển hướng và ĐỔI tin nhắn hiện nút 2
 bot.action("step1", async (ctx) => {
   try {
-    // Tắt xoay vòng ngay lập tức
-    await ctx.answerCbQuery();
+    // 1. Mở link Bot kia (Tự động chuyển hướng)
+    await ctx.answerCbQuery("Đang chuyển hướng...", { url: JOIN_LINK });
 
-    // Thay đổi tin nhắn: Hiện link và hiện nút Bước 2
+    // 2. Thay đổi tin nhắn cũ, lúc này mới hiện nút "Đã tham gia"
     await ctx.editMessageText(
-      "✅ Đã lấy link thành công!\n\n1️⃣ Bạn bấm vào link này để tham gia: " + JOIN_LINK + "\n\n2️⃣ Sau khi tham gia xong, bấm nút xác nhận dưới đây:",
+      "✅ Bạn đang được chuyển đến Bot tham gia...\n\nSau khi bấm 'Start' ở Bot kia xong, hãy quay lại đây bấm nút xác nhận bên dưới nhé!",
       Markup.inlineKeyboard([
         [Markup.button.callback("✅ Bước 2: Đã tham gia", "joined")]
       ])
@@ -38,6 +40,7 @@ bot.action("step1", async (ctx) => {
   } catch (error) { console.log(error) }
 });
 
+// BƯỚC 3: Trả kết quả link nhóm
 bot.action("joined", async (ctx) => {
   try {
     await ctx.answerCbQuery();
