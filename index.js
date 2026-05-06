@@ -79,6 +79,7 @@ bot.action("get_link", async (ctx) => {
       "🎉 Link nhóm của bạn đây:",
       Markup.inlineKeyboard([
         [Markup.button.url("👉 Nhóm 1", "https://t.me/nhomfreene")],
+        [Markup.button.url("👉 Nhóm 2", "https://t.me/dong18au")],
         [Markup.button.url("👉 Nhóm 3", "https://t.me/donggdamm18")]
       ])
     );
