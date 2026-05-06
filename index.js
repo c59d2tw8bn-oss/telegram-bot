@@ -14,17 +14,8 @@ const GROUP_LINKS = ["https://t.me/nhomfreene", "https://t.me/dong18au"];
 
 bot.start(async (ctx) => {
   try {
-    const args = ctx.startPayload;
-
-    // Nếu user quay lại từ link (có payload) → cho luôn link nhóm
-    if (args) {
-      const links = GROUP_LINKS.map((link) => `👉 ${link}`).join("\n");
-      return ctx.reply("🎉 Đây là link nhóm của bạn:\n\n" + links);
-    }
-
-    // Lần đầu vào → chỉ hiện nút tham gia
     await ctx.reply(
-      "👋 Chào mừng bạn!\n\nBạn bấm nút bên dưới để tham gia, sau đó quay lại bot để nhận link nhé!",
+      "👋 Chào mừng bạn!\n\nBấm nút bên dưới để tham gia, rồi quay lại bot để lấy link nhé!",
       Markup.inlineKeyboard([
         [Markup.button.url("➡️ Tham gia ngay", JOIN_LINK)]
       ])
@@ -37,6 +28,3 @@ bot.start(async (ctx) => {
 bot.launch({ dropPendingUpdates: true }).then(() => {
   console.log("Bot started!");
 });
-
-process.once("SIGINT", () => bot.stop("SIGINT"));
-process.once("SIGTERM", () => bot.stop("SIGTERM"));
