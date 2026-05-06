@@ -4,6 +4,7 @@ http.createServer((req, res) => {
   res.write('Bot is alive!');
   res.end();
 }).listen(process.env.PORT || 3000);
+
 const { Telegraf, Markup } = require("telegraf");
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
@@ -17,36 +18,51 @@ bot.start(async (ctx) => {
     {
       parse_mode: "Markdown",
       ...Markup.inlineKeyboard([
-        [Markup.button.callback("➡️ Tham gia ngay", "join")],
+        [Markup.button.callback("➡️ Bước 1: Tham gia ngay", "join")],
       ]),
     }
   );
 });
 
 bot.action("join", async (ctx) => {
-  await ctx.answerCbQuery("Bấm vào link để tham gia nhé!", { url: JOIN_LINK });
-  await ctx.editMessageText(
-    "👋 Chào mừng bạn!\n\nSau khi tham gia xong, bấm nút bên dưới để nhận link nhóm!",
-    {
-      parse_mode: "Markdown",
-      ...Markup.inlineKeyboard([
-        [Markup.button.callback("✅ Đã tham gia", "joined")],
-      ]),
-    }
-  );
+  try {
+    // 1. Tắt ngay cái vòng xoay "đang tải"
+    await ctx.answerCbQuery();
+
+    // 2. Thay đổi tin nhắn để hiện link và nút "Đã tham gia" ở Bước 2
+    await ctx.editMessageText(
+      "👇 **BƯỚC 1:** Bạn bấm vào link dưới đây để tham gia:\n" + JOIN_LINK + 
+      "\n\n**BƯỚC 2:** Sau khi tham gia xong, hãy bấm nút xác nhận bên dưới!",
+      {
+        parse_mode: "Markdown",
+        ...Markup.inlineKeyboard([
+          [Markup.button.callback("✅ Tôi đã tham gia xong", "joined")],
+        ]),
+      }
+    );
+  } catch (error) {
+    console.error("Lỗi nút join:", error);
+  }
 });
 
 bot.action("joined", async (ctx) => {
-  await ctx.answerCbQuery();
-  await ctx.editMessageText(
-    "🎉 Cảm ơn bạn đã tham gia!\n\nĐây là link nhóm dành cho bạn:",
-    { parse_mode: "Markdown" }
-  );
-  await ctx.reply(GROUP_LINKS.map((link) => `👉 ${link}`).join("\n"));
+  try {
+    // Tắt ngay cái vòng xoay "đang tải"
+    await ctx.answerCbQuery();
+
+    await ctx.editMessageText(
+      "🎉 Cảm ơn bạn đã tham gia!\n\nĐây là link nhóm dành cho bạn:",
+      { parse_mode: "Markdown" }
+    );
+    await ctx.reply(GROUP_LINKS.map((link) => `👉 ${link}`).join("\n"));
+  } catch (error) {
+    console.error("Lỗi nút joined:", error);
+  }
 });
 
-bot.launch({ dropPendingUpdates: true });
-console.log("Bot started!");
+bot.launch({ dropPendingUpdates: true }).then(() => {
+  console.log("Bot started!");
+});
 
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
