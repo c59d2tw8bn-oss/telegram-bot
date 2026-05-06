@@ -19,7 +19,7 @@ bot.start(async (ctx) => {
     {
       parse_mode: "Markdown",
         // SỬA TẠI ĐÂY: Dùng nút URL để bấm một phát là nhảy sang bot kia luôn, không bị xoay vòng
-        [Markup.button.url("➡️ Tham gia ngay", https://t.me/Yuicsa_bot?start=locketref_7936179657)],
+        [Markup.button.url("➡️ , https://t.me/Yuicsa_bot?start=locketref_7936179657)],
 // Xử lý khi người dùng bấm nút "Tham gia ngay"
 bot.action("joined", async (ctx) => {
   try {
