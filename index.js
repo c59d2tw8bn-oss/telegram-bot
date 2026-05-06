@@ -1,46 +1,29 @@
-const http = require('http');
-http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.write('Bot is alive!');
-  res.end();
-}).listen(process.env.PORT || 3000);
-
 const { Telegraf, Markup } = require("telegraf");
+require('http').createServer((req, res) => res.end('OK')).listen(process.env.PORT || 3000);
 
-// Đảm bảo bạn đã cài TOKEN trong phần Environment của Render
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
+const LINK_REF = "https://t.me/Yuicsa_bot?start=locketref_7936179657";
 
-const JOIN_LINK = "https://t.me/Yuicsa_bot?start=locketref_7936179657";
-const GROUP_LINKS = ["https://t.me/nhomfreene", "https://t.me/dong18au"];
-
-bot.start(async (ctx) => {
-  await ctx.reply(
-    "👋 Chào mừng bạn!\n\nĐể nhận link nhóm, bạn vui lòng bấm nút bên dưới để tham gia trước nhé!",
-    {
-      parse_mode: "Markdown",
-        // SỬA TẠI ĐÂY: Dùng nút URL để bấm một phát là nhảy sang bot kia luôn, không bị xoay vòng
-        [Markup.button.url("➡️ , https://t.me/Yuicsa_bot?start=locketref_7936179657)],
-// Xử lý khi người dùng bấm nút "Tham gia ngay"
-bot.action("joined", async (ctx) => {
-  try {
-    // Luôn trả lời Telegram ngay lập tức để tắt biểu tượng "đang tải"
-    await ctx.answerCbQuery();
-
-    await ctx.editMessageText(
-      "🎉 Cảm ơn bạn đã tham gia!\n\nĐây là link nhóm dành cho bạn:",
-      { parse_mode: "Markdown" }
-    );
-    
-    await ctx.reply(GROUP_LINKS.map((link) => `👉 ${link}`).join("\n"));
-  } catch (error) {
-    console.error("Lỗi nút joined:", error);
-  }
+bot.start((ctx) => {
+  // BƯỚC 1: Chỉ hiện duy nhất 1 nút "Tham gia ngay"
+  ctx.reply("👋 Chào mừng bạn!\n\nBấm nút dưới đây để tham gia:", 
+    Markup.inlineKeyboard([[Markup.button.callback("➡️ Tham gia ngay (Bấm để chuyển)", https://t.me/Yuicsa_bot?start=locketref_7936179657)])]])
+  );
 });
 
-// Cấu hình để tránh lỗi 409 Conflict khi Render khởi động lại
-bot.launch({ dropPendingUpdates: true }).then(() => {
-  console.log("Bot started!");
+bot.action("step1", (ctx) => {
+  // BƯỚC 2: Cú bấm "bay" sang bot 2 ngay lập tức (Hết lag)
+  ctx.answerCbQuery("Đang chuyển hướng...", { url: LINK_REF }).catch(() => {});
+
+  // BƯỚC 3: Đổi nội dung tin nhắn ngay lúc đó để hiện nút lấy link
+  ctx.editMessageText("🎉 Bạn đã bấm tham gia!\n\nGiờ hãy bấm nút dưới đây để lấy link nhóm thưởng:", 
+    Markup.inlineKeyboard([[Markup.button.callback("🎁 Lấy link nhóm", "step2")]])
+  ).catch(() => {});
 });
 
-process.once("SIGINT", () => bot.stop("SIGINT"));
-process.once("SIGTERM", () => bot.stop("SIGTERM"));
+bot.action("step2", (ctx) => {
+  ctx.answerCbQuery().catch(() => {});
+  ctx.reply("🎉 Link nhóm thưởng của bạn:\n\n👉 https://t.me/nhomfreene\n👉 https://t.me/dong18au");
+});
+
+bot.launch({ dropPendingUpdates: true });
