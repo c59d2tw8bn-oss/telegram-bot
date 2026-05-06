@@ -1,4 +1,4 @@
-const http = require('http');
+ const http = require('http');
 http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.write('Bot is alive!');
@@ -15,11 +15,11 @@ const GROUP_LINKS = ["https://t.me/nhomfreene", "https://t.me/dong18au"];
 bot.start(async (ctx) => {
   try {
     await ctx.reply(
-      "👋 Chào mừng bạn!\n\nBấm nút dưới đây để tham gia, sau đó chọn 'Đã tham gia' để lấy link nhóm nhé!",
+      "👋 Chào mừng bạn!\n\nBạn vui lòng bấm nút bên dưới để tham gia, sau đó quay lại đây chọn '✅ Đã tham gia' để nhận link nhóm nhé!",
       Markup.inlineKeyboard([
-        // Nút này bấm là TỰ CHUYỂN sang Bot kia luôn, KHÔNG XOAY VÒNG
-        [Markup.button.url("➡️ Tham gia ngay", JOIN_LINK)],
-        // Nút này để người dùng quay lại bấm xác nhận
+        // Nút này bấm vào là TỰ CHUYỂN thẳng sang bot Yuicsa, không hiện link rác
+        [Markup.button.url("➡️ Tham gia ngay (Bấm để chuyển)", JOIN_LINK)],
+        // Nút này để người dùng xác nhận sau khi quay lại
         [Markup.button.callback("✅ Đã tham gia", "joined")]
       ])
     );
@@ -30,11 +30,11 @@ bot.start(async (ctx) => {
 
 bot.action("joined", async (ctx) => {
   try {
-    // Tắt ngay cái biểu tượng "đang tải" khi bấm nút này
+    // Tắt cái xoay vòng ngay lập tức
     await ctx.answerCbQuery();
 
     const links = GROUP_LINKS.map((link) => `👉 ${link}`).join("\n");
-    await ctx.reply("🎉 Chào mừng bạn đã quay lại!\n\nĐây là link nhóm dành cho bạn:\n" + links);
+    await ctx.reply("🎉 Cảm ơn bạn đã tham gia!\n\nĐây là link nhóm dành cho bạn:\n" + links);
   } catch (error) {
     console.log(error);
   }
