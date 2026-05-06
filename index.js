@@ -1,29 +1,42 @@
+const http = require('http');
+http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.write('Bot is alive!');
+  res.end();
+}).listen(process.env.PORT || 3000);
+
 const { Telegraf, Markup } = require("telegraf");
-require('http').createServer((req, res) => res.end('OK')).listen(process.env.PORT || 3000);
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
-const LINK_REF = "https://t.me/Yuicsa_bot?start=locketref_7936179657";
 
-bot.start((ctx) => {
-  // BƯỚC 1: Chỉ hiện duy nhất 1 nút "Tham gia ngay"
-  ctx.reply("👋 Chào mừng bạn!\n\nBấm nút dưới đây để tham gia:", 
-    Markup.inlineKeyboard([[Markup.button.callback("➡️ Tham gia ngay (Bấm để chuyển)", https://t.me/Yuicsa_bot?start=locketref_7936179657)])]])
-  );
+const JOIN_LINK = "https://t.me/Yuicsa_bot?start=locketref_7936179657";
+const GROUP_LINKS = ["https://t.me/nhomfreene", "https://t.me/dong18au"];
+
+bot.start(async (ctx) => {
+  try {
+    const args = ctx.startPayload;
+
+    // Nếu user quay lại từ link (có payload) → cho luôn link nhóm
+    if (args) {
+      const links = GROUP_LINKS.map((link) => `👉 ${link}`).join("\n");
+      return ctx.reply("🎉 Đây là link nhóm của bạn:\n\n" + links);
+    }
+
+    // Lần đầu vào → chỉ hiện nút tham gia
+    await ctx.reply(
+      "👋 Chào mừng bạn!\n\nBạn bấm nút bên dưới để tham gia, sau đó quay lại bot để nhận link nhé!",
+      Markup.inlineKeyboard([
+        [Markup.button.url("➡️ Tham gia ngay", JOIN_LINK)]
+      ])
+    );
+  } catch (e) {
+    console.log(e);
+  }
 });
 
-bot.action("step1", (ctx) => {
-  // BƯỚC 2: Cú bấm "bay" sang bot 2 ngay lập tức (Hết lag)
-  ctx.answerCbQuery("Đang chuyển hướng...", { url: LINK_REF }).catch(() => {});
-
-  // BƯỚC 3: Đổi nội dung tin nhắn ngay lúc đó để hiện nút lấy link
-  ctx.editMessageText("🎉 Bạn đã bấm tham gia!\n\nGiờ hãy bấm nút dưới đây để lấy link nhóm thưởng:", 
-    Markup.inlineKeyboard([[Markup.button.callback("🎁 Lấy link nhóm", "step2")]])
-  ).catch(() => {});
+bot.launch({ dropPendingUpdates: true }).then(() => {
+  console.log("Bot started!");
 });
 
-bot.action("step2", (ctx) => {
-  ctx.answerCbQuery().catch(() => {});
-  ctx.reply("🎉 Link nhóm thưởng của bạn:\n\n👉 https://t.me/nhomfreene\n👉 https://t.me/dong18au");
-});
-
-bot.launch({ dropPendingUpdates: true });
+process.once("SIGINT", () => bot.stop("SIGINT"));
+process.once("SIGTERM", () => bot.stop("SIGTERM"));
