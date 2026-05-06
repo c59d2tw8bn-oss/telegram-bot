@@ -15,41 +15,34 @@ const GROUP_LINKS = ["https://t.me/nhomfreene", "https://t.me/dong18au"];
 bot.start(async (ctx) => {
   try {
     await ctx.reply(
-      "👋 Chào mừng bạn!\n\nĐể nhận link nhóm, bạn vui lòng bấm nút bên dưới để tham gia trước nhé!",
+      "👋 Chào mừng bạn!\n\nBấm nút dưới đây để tham gia, sau đó chọn 'Đã tham gia' để lấy link nhóm nhé!",
       Markup.inlineKeyboard([
-        [Markup.button.callback("➡️ Tham gia ngay", "join")]
-      ])
-    );
-  } catch (e) { console.log(e) }
-});
-
-bot.action("join", async (ctx) => {
-  try {
-    await ctx.answerCbQuery(); 
-    
-    // Gửi tin nhắn chứa link ref của bạn
-    await ctx.reply(
-      "👇 BƯỚC 1: Bấm vào link này để tham gia:\n\n" + JOIN_LINK + "\n\n👇 BƯỚC 2: Sau khi tham gia xong, hãy bấm nút xác nhận bên dưới:",
-      Markup.inlineKeyboard([
+        // Nút này bấm là TỰ CHUYỂN sang Bot kia luôn, KHÔNG XOAY VÒNG
+        [Markup.button.url("➡️ Tham gia ngay", JOIN_LINK)],
+        // Nút này để người dùng quay lại bấm xác nhận
         [Markup.button.callback("✅ Đã tham gia", "joined")]
       ])
     );
-  } catch (error) {
-    console.log(error);
+  } catch (e) {
+    console.log(e);
   }
 });
 
 bot.action("joined", async (ctx) => {
   try {
+    // Tắt ngay cái biểu tượng "đang tải" khi bấm nút này
     await ctx.answerCbQuery();
+
     const links = GROUP_LINKS.map((link) => `👉 ${link}`).join("\n");
-    await ctx.reply("🎉 Cảm ơn bạn đã tham gia!\n\nĐây là link nhóm dành cho bạn:\n" + links);
+    await ctx.reply("🎉 Chào mừng bạn đã quay lại!\n\nĐây là link nhóm dành cho bạn:\n" + links);
   } catch (error) {
     console.log(error);
   }
 });
 
-bot.launch({ dropPendingUpdates: true }).then(() => console.log("Bot started!"));
+bot.launch({ dropPendingUpdates: true }).then(() => {
+  console.log("Bot started!");
+});
 
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
