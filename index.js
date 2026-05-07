@@ -1,89 +1,89 @@
-const http = require("http");
+const http = require('http');
+http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.write('Bot is alive!');
+  res.end();
+}).listen(process.env.PORT || 3000);
+
 const { Telegraf, Markup } = require("telegraf");
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
-// Web server cho Render + UptimeRobot
-http.createServer((req, res) => {
-  res.writeHead(200, { "Content-Type": "text/plain" });
-  res.end("Bot is alive!");
-}).listen(process.env.PORT || 3000);
-
-// Links
 const JOIN_LINK = "https://t.me/Yuicsa_bot?start=locketref_7936179657";
 const RETURN_LINK = "https://t.me/loketgoldvip_bot?start=done";
 
 const GROUP_LINKS = [
   "https://t.me/nhomfreene",
-  "https://t.me/dong18au",
+  "https://t.me/dong18au"
   "https://t.me/donggdamm18"
 ];
 
+// 👉 Lưu user đã bấm B1
 const joinedUsers = new Set();
 
-// keep alive nhẹ
-setInterval(() => {
-  console.log("keep alive");
-}, 5 * 60 * 1000);
-
-// ================= START =================
 bot.start(async (ctx) => {
   try {
     const payload = ctx.startPayload;
     const id = ctx.from.id;
 
-    // quay lại từ bot 2
+    // ✅ Nếu quay lại
     if (payload === "done") {
       if (!joinedUsers.has(id)) {
-        return ctx.reply("❌ Bạn chưa bấm tham gia bước 1!");
+        return ctx.reply("❌ Bạn chưa bấm nút THAM GIA bước 1!");
       }
 
       return ctx.reply(
-        "🎉 Xong rồi!\n\nBấm để lấy link:",
+        "🎉 Xong rồi!\n\nBấm nút dưới để lấy link nhóm:",
         Markup.inlineKeyboard([
           [Markup.button.callback("📥 Lấy link nhóm", "get_link")]
         ])
       );
     }
 
-    // màn hình chính
+    // ✅ Lần đầu → KHÔNG add user vội
     await ctx.reply(
-      "👋 Chào bạn!\n\nBấm nút bên dưới để tham gia:",
+      "👋 Chào mừng bạn!\n\n1️⃣ Bấm THAM GIA\n2️⃣ Xong bấm QUAY LẠI",
       Markup.inlineKeyboard([
-        [Markup.button.url("➡️ Tham gia ngay", JOIN_LINK)]
+        [Markup.button.callback("➡️ Tham gia ngay", "join_step")],
+        [Markup.button.url("🔙 Quay lại nhận link", RETURN_LINK)]
       ])
     );
-
   } catch (e) {
     console.log(e);
   }
 });
 
-// ================= GET LINK =================
+// 👉 Khi bấm nút THAM GIA
+bot.action("join_step", async (ctx) => {
+  try {
+    const id = ctx.from.id;
+
+    joinedUsers.add(id); // ✅ chỉ add khi bấm nút
+
+    await ctx.answerCbQuery();
+    await ctx.reply(
+      "👉 Nhấn link dưới để tham gia, xong quay lại nhé:",
+      Markup.inlineKeyboard([
+        [Markup.button.url("🚀 Đi đến bot tham gia", JOIN_LINK)]
+      ])
+    );
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+// 👉 Lấy link nhóm
 bot.action("get_link", async (ctx) => {
   try {
     await ctx.answerCbQuery();
 
-    await ctx.reply(
-      "🎉 Link nhóm của bạn đây:",(hiện 3 nhóm lên)
-      Markup.inlineKeyboard([
-        [Markup.button.url("👉 Nhóm 1", GROUP_LINKS[1])],
-        [Markup.button.url("👉 Nhóm 2", GROUP_LINKS[2])],
-        [Markup.button.url("👉 Nhóm 3", GROUP_LINKS[3])]
-      ])
-    );
-
+    const links = GROUP_LINKS.map((l) => `👉 ${l}`).join("\n");
+    await ctx.reply("🎉 Đây là link nhóm của bạn:\n\n" + links);
   } catch (e) {
     console.log(e);
   }
 });
 
-// ================= ERROR =================
-bot.catch((err) => {
-  console.log("BOT ERROR:", err);
-});
-
-// ================= START BOT =================
 bot.launch({ dropPendingUpdates: true }).then(() => {
   console.log("Bot started!");
 });
