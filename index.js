@@ -13,10 +13,15 @@ http.createServer((req, res) => {
 const JOIN_LINK = "https://t.me/Yuicsa_bot?start=locketref_7936179657";
 const RETURN_LINK = "https://t.me/loketgoldvip_bot?start=done";
 
-// Join status (tạm thời)
+const GROUP_LINKS = [
+  "https://t.me/nhomfreene",
+  "https://t.me/dong18au",
+  "https://t.me/donggdamm18"
+];
+
 const joinedUsers = new Set();
 
-// giữ bot đỡ sleep nhẹ
+// keep alive nhẹ
 setInterval(() => {
   console.log("keep alive");
 }, 5 * 60 * 1000);
@@ -27,20 +32,25 @@ bot.start(async (ctx) => {
     const payload = ctx.startPayload;
     const id = ctx.from.id;
 
-    // quay lại
+    // quay lại từ bot 2
     if (payload === "done") {
       if (!joinedUsers.has(id)) {
         return ctx.reply("❌ Bạn chưa bấm tham gia bước 1!");
       }
 
-      return ctx.reply("🎉 Xong rồi! Bấm để lấy link:");
+      return ctx.reply(
+        "🎉 Xong rồi!\n\nBấm để lấy link:",
+        Markup.inlineKeyboard([
+          [Markup.button.callback("📥 Lấy link nhóm", "get_link")]
+        ])
+      );
     }
 
+    // màn hình chính
     await ctx.reply(
-      "👋 Chào bạn!\n\n1️⃣ Bấm tham gia\n2️⃣ Xong quay lại nhận link",
+      "👋 Chào bạn!\n\nBấm nút bên dưới để tham gia:",
       Markup.inlineKeyboard([
-        [Markup.button.callback("➡️ Tham gia ngay", "join_step")],
-        [Markup.button.url("🔙 Quay lại nhận link", RETURN_LINK)]
+        [Markup.button.url("➡️ Tham gia ngay", JOIN_LINK)]
       ])
     );
 
@@ -49,28 +59,7 @@ bot.start(async (ctx) => {
   }
 });
 
-// ================= B1 =================
-bot.action("join_step", async (ctx) => {
-  try {
-    const id = ctx.from.id;
-
-    joinedUsers.add(id);
-
-    await ctx.answerCbQuery();
-
-    await ctx.reply(
-      "🚀 Bấm vào đây để tham gia:",
-      Markup.inlineKeyboard([
-        [Markup.button.url("➡️ Đi tới bot", JOIN_LINK)]
-      ])
-    );
-
-  } catch (e) {
-    console.log(e);
-  }
-});
-
-// ================= GET LINK (ĐÃ LÀM ĐẸP) =================
+// ================= GET LINK =================
 bot.action("get_link", async (ctx) => {
   try {
     await ctx.answerCbQuery();
@@ -78,9 +67,9 @@ bot.action("get_link", async (ctx) => {
     await ctx.reply(
       "🎉 Link nhóm của bạn đây:",
       Markup.inlineKeyboard([
-        [Markup.button.url("👉 Nhóm 1", "https://t.me/nhomfreene")],
-        [Markup.button.url("👉 Nhóm 2", "https://t.me/dong18au")],
-        [Markup.button.url("👉 Nhóm 3", "https://t.me/donggdamm18")]
+        [Markup.button.url("👉 Nhóm 1", GROUP_LINKS[0])],
+        [Markup.button.url("👉 Nhóm 2", GROUP_LINKS[1])],
+        [Markup.button.url("👉 Nhóm 3", GROUP_LINKS[2])]
       ])
     );
 
@@ -89,12 +78,12 @@ bot.action("get_link", async (ctx) => {
   }
 });
 
-// error
+// ================= ERROR =================
 bot.catch((err) => {
   console.log("BOT ERROR:", err);
 });
 
-// launch
+// ================= START BOT =================
 bot.launch({ dropPendingUpdates: true }).then(() => {
   console.log("Bot started!");
 });
