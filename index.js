@@ -65,11 +65,11 @@ bot.action("get_link", async (ctx) => {
     await ctx.answerCbQuery();
 
     await ctx.reply(
-      "🎉 Link nhóm của bạn đây:",
+      "🎉 Link nhóm của bạn đây:",(hiện 3 nhóm lên)
       Markup.inlineKeyboard([
-        [Markup.button.url("👉 Nhóm 1", GROUP_LINKS[0])],
-        [Markup.button.url("👉 Nhóm 2", GROUP_LINKS[1])],
-        [Markup.button.url("👉 Nhóm 3", GROUP_LINKS[2])]
+        [Markup.button.url("👉 Nhóm 1", GROUP_LINKS[1])],
+        [Markup.button.url("👉 Nhóm 2", GROUP_LINKS[2])],
+        [Markup.button.url("👉 Nhóm 3", GROUP_LINKS[3])]
       ])
     );
 
