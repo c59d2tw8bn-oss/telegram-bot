@@ -10,13 +10,16 @@ const GROUP_LINKS = [
   "https://t.me/donggdamm18",
 ];
 
+const joinedUsers = new Set();
+
 bot.start(async (ctx) => {
   await ctx.reply(
-    "👋 Chào mừng bạn!\n\nĐể nhận link nhóm, hãy bấm nút bên dưới để tham gia trước nhé!",
+    "👋 Chào mừng bạn!\n\nBấm *Tham gia* trước, sau đó bấm *Lấy link nhóm* để nhận link!",
     {
       parse_mode: "Markdown",
       ...Markup.inlineKeyboard([
-        [Markup.button.callback("➡️ Tham gia ngay", "join")],
+        [Markup.button.callback("➡️ Tham gia", "join")],
+        [Markup.button.callback("🔗 Lấy link nhóm", "getlink")],
       ]),
     }
   );
@@ -24,33 +27,22 @@ bot.start(async (ctx) => {
 
 bot.action("join", async (ctx) => {
   await ctx.answerCbQuery();
-  await ctx.editMessageText(
-    "👆 Bấm nút trên để tham gia bot nhé!",
-    {
-      parse_mode: "Markdown",
-      ...Markup.inlineKeyboard([
-        [Markup.button.url("➡️ Tham gia bot", JOIN_LINK)],
-      ]),
-    }
-  );
-  await ctx.reply(
-    "Sau khi tham gia xong, bấm nút bên dưới để nhận link nhóm! 👇",
-    {
-      parse_mode: "Markdown",
-      ...Markup.inlineKeyboard([
-        [Markup.button.callback("✅ Đã tham gia", "joined")],
-      ]),
-    }
-  );
+  const userId = ctx.from?.id;
+  if (userId) joinedUsers.add(userId);
+  await ctx.reply(`👉 Bấm vào link này để tham gia:\n${JOIN_LINK}`);
 });
 
-bot.action("joined", async (ctx) => {
+bot.action("getlink", async (ctx) => {
+  const userId = ctx.from?.id;
+  if (!userId || !joinedUsers.has(userId)) {
+    await ctx.answerCbQuery("⚠️ Bạn cần bấm Tham gia trước!", { show_alert: true });
+    return;
+  }
   await ctx.answerCbQuery();
-  await ctx.editMessageText(
-    "🎉 Cảm ơn bạn đã tham gia!\n\nĐây là link nhóm dành cho bạn:",
-    { parse_mode: "Markdown" }
+  await ctx.reply(
+    "🎉 Đây là link nhóm dành cho bạn:\n\n" +
+      GROUP_LINKS.map((link) => `👉 ${link}`).join("\n")
   );
-  await ctx.reply(GROUP_LINKS.map((link) => `👉 ${link}`).join("\n"));
 });
 
 bot.launch({ dropPendingUpdates: true });
