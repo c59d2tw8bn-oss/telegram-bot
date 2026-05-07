@@ -12,7 +12,7 @@ const GROUP_LINKS = [
 
 bot.start(async (ctx) => {
   await ctx.reply(
-    "👋 Chào mừng bạn!\n\nĐể nhận link nhóm, bạn vui lòng bấm nút bên dưới để tham gia trước nhé!",
+    "👋 Chào mừng bạn!\n\nĐể nhận link nhóm, hãy bấm nút bên dưới để tham gia trước nhé!",
     {
       parse_mode: "Markdown",
       ...Markup.inlineKeyboard([
@@ -25,11 +25,19 @@ bot.start(async (ctx) => {
 bot.action("join", async (ctx) => {
   await ctx.answerCbQuery();
   await ctx.editMessageText(
-    "Sau khi tham gia xong, bấm *Đã tham gia* để nhận link nhóm!",
+    "👆 Bấm nút trên để tham gia bot nhé!",
     {
       parse_mode: "Markdown",
       ...Markup.inlineKeyboard([
         [Markup.button.url("➡️ Tham gia bot", JOIN_LINK)],
+      ]),
+    }
+  );
+  await ctx.reply(
+    "Sau khi tham gia xong, bấm nút bên dưới để nhận link nhóm! 👇",
+    {
+      parse_mode: "Markdown",
+      ...Markup.inlineKeyboard([
         [Markup.button.callback("✅ Đã tham gia", "joined")],
       ]),
     }
@@ -51,7 +59,6 @@ console.log("Bot started!");
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
-// Keep-alive HTTP server để tránh Render ngủ
 const PORT = process.env.PORT || 3000;
 http.createServer((req, res) => {
   res.writeHead(200);
