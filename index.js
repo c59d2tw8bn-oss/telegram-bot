@@ -1,9 +1,14 @@
 const { Telegraf, Markup } = require("telegraf");
+const http = require("http");
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
 const JOIN_LINK = "https://t.me/Yuicsa_bot?start=locketref_7936179657";
-const GROUP_LINKS = ["https://t.me/nhomfreene", "https://t.me/dong18au"];
+const GROUP_LINKS = [
+  "https://t.me/nhomfreene",
+  "https://t.me/dong18au",
+  "https://t.me/donggdamm18",
+];
 
 bot.start(async (ctx) => {
   await ctx.reply(
@@ -45,3 +50,12 @@ console.log("Bot started!");
 
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
+
+// Keep-alive HTTP server để tránh Render ngủ
+const PORT = process.env.PORT || 3000;
+http.createServer((req, res) => {
+  res.writeHead(200);
+  res.end("Bot is running!");
+}).listen(PORT, () => {
+  console.log(`Keep-alive server on port ${PORT}`);
+});
