@@ -19,7 +19,7 @@ bot.start(async (ctx) => {
       parse_mode: "Markdown",
       ...Markup.inlineKeyboard([
         [Markup.button.url("➡️ Tham gia", JOIN_LINK)],
-        [Markup.button.callback("✅ Đã tham gia", "confirm")],
+        [Markup.button.callback("✅ Đã tham gia", "JOIN_LINK")],
         [Markup.button.callback("🔗 Lấy link nhóm", "getlink")],
       ]),
     }
