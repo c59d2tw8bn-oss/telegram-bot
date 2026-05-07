@@ -26,9 +26,15 @@ bot.start(async (ctx) => {
 });
 
 bot.action("join", async (ctx) => {
+  await ctx.answerCbQuery();
   const userId = ctx.from?.id;
   if (userId) joinedUsers.add(userId);
-  await ctx.answerCbQuery(undefined, { url: JOIN_LINK });
+  await ctx.editMessageReplyMarkup(
+    Markup.inlineKeyboard([
+      [Markup.button.url("➡️ Tham gia bot", JOIN_LINK)],
+      [Markup.button.callback("🔗 Lấy link nhóm", "getlink")],
+    ]).reply_markup
+  );
 });
 
 bot.action("getlink", async (ctx) => {
