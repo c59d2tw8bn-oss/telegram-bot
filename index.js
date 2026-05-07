@@ -14,27 +14,27 @@ const joinedUsers = new Set();
 
 bot.start(async (ctx) => {
   await ctx.reply(
-    "👋 Chào mừng bạn!\n\nBấm *Tham gia* trước, sau đó bấm *Lấy link nhóm* để nhận link!",
+    "👋 Chào mừng bạn!\n\nBấm *Tham gia* để vào bot, sau đó bấm *Đã tham gia* để nhận link nhóm!",
     {
       parse_mode: "Markdown",
       ...Markup.inlineKeyboard([
-        [Markup.button.callback("➡️ Tham gia", "join")],
+        [Markup.button.url("➡️ Tham gia", JOIN_LINK)],
+        [Markup.button.callback("✅ Đã tham gia", "confirm")],
         [Markup.button.callback("🔗 Lấy link nhóm", "getlink")],
       ]),
     }
   );
 });
 
-bot.action("join", async (ctx) => {
+bot.action("confirm", async (ctx) => {
   await ctx.answerCbQuery();
   const userId = ctx.from && ctx.from.id;
   if (userId) joinedUsers.add(userId);
   await ctx.editMessageText(
-    "👋 Chào mừng bạn!\n\nBấm *Tham gia* trước, sau đó bấm *Lấy link nhóm* để nhận link!",
+    "✅ Đã xác nhận! Giờ bấm *Lấy link nhóm* để nhận link nhé!",
     {
       parse_mode: "Markdown",
       ...Markup.inlineKeyboard([
-        [Markup.button.url("➡️ Tham gia bot", JOIN_LINK)],
         [Markup.button.callback("🔗 Lấy link nhóm", "getlink")],
       ]),
     }
@@ -44,7 +44,7 @@ bot.action("join", async (ctx) => {
 bot.action("getlink", async (ctx) => {
   const userId = ctx.from && ctx.from.id;
   if (!userId || !joinedUsers.has(userId)) {
-    await ctx.answerCbQuery("⚠️ Bạn cần bấm Tham gia trước!", { show_alert: true });
+    await ctx.answerCbQuery("⚠️ Bạn cần bấm Tham gia và Đã tham gia trước!", { show_alert: true });
     return;
   }
   await ctx.answerCbQuery();
