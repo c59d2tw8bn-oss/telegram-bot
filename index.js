@@ -10,39 +10,56 @@ const GROUP_LINKS = [
   "https://t.me/donggdamm18",
 ];
 
+// Map này để ghi nhớ xem ai đã thực sự bấm nút "Tham gia" chưa
+const hasClicked = new Map();
+
 bot.start(async (ctx) => {
+  const userId = ctx.from.id;
+  hasClicked.set(userId, false); // Mặc định là CHƯA bấm
+
   await ctx.reply(
-    "👋 *Chào mừng bạn!*\n\nBấm nút dưới đây để tham gia và nhận link nhóm ngay lập tức.",
+    "👋 *Chào mừng bạn!*\n\nĐể nhận link nhóm, bạn cần:\n1️⃣ Bấm nút **Tham gia**.\n2️⃣ Sau đó bấm **Đã tham gia**.",
     {
       parse_mode: "Markdown",
       ...Markup.inlineKeyboard([
-        // Nút này vừa dẫn sang Bot 2, vừa có callback để bot biết người dùng đã tương tác
-        [Markup.button.url("➡️ Tham gia ngay", JOIN_LINK)],
-        [Markup.button.callback("✅ Tôi đã bấm tham gia", "check_and_show")]
+        // Khi bấm nút này, bot sẽ chạy hàm 'track_join' để mở khóa
+        [Markup.button.callback("➡️ 1. Tham gia", "track_join")],
+        [Markup.button.callback("✅ 2. Đã tham gia", "check_final")]
       ]),
     }
   );
 });
 
-// Xử lý khi khách quay lại bấm "Tôi đã bấm tham gia"
-bot.action("check_and_show", async (ctx) => {
-  await ctx.answerCbQuery("Đang lấy link..."); // Tắt xoay vòng nút
+// Xử lý khi khách bấm nút "1. Tham gia"
+bot.action("track_join", async (ctx) => {
+  const userId = ctx.from.id;
+  hasClicked.set(userId, true); // CHÍNH THỨC MỞ KHÓA cho user này
 
-  // Sửa trực tiếp tin nhắn cũ thành danh sách link nhóm luôn cho nhanh
-  await ctx.editMessageText(
-    "🎉 *Chúc mừng bạn! Đây là danh sách link nhóm:* \n\n" +
-    GROUP_LINKS.map(link => "👉 [Vào Nhóm Ngay](" + link + ")").join("\n"),
-    { 
-      parse_mode: "Markdown", 
-      disable_web_page_preview: true,
-      ...Markup.inlineKeyboard([
-        [Markup.button.url("🔥 Tham gia thêm nhóm khác", "https://t.me/nhomfreene")]
-      ])
-    }
+  await ctx.answerCbQuery(); // Tắt xoay vòng nút
+
+  // Gửi link bot 2 cho họ ngay lập tức
+  await ctx.reply(`Bấm vào link này để sang Bot 2: ${JOIN_LINK}\n\nSau khi bấm xong, hãy nhấn nút 'Đã tham gia' ở trên!`);
+});
+
+// Xử lý khi khách bấm nút "2. Đã tham gia"
+bot.action("check_final", async (ctx) => {
+  const userId = ctx.from.id;
+
+  // KIỂM TRA CHẶN: Nếu chưa bấm nút 1 (track_join) thì không cho lấy link
+  if (hasClicked.get(userId) !== true) {
+    return ctx.answerCbQuery("⚠️ BẠN CHƯA BẤM THAM GIA! Vui lòng bấm nút số 1 trước.", { show_alert: true });
+  }
+
+  // Nếu đã bấm nút 1 rồi thì mới trả link
+  await ctx.answerCbQuery("✅ Xác nhận thành công!");
+  await ctx.reply(
+    "🎉 Đây là danh sách link nhóm của bạn:\n\n" +
+    GROUP_LINKS.map(link => "👉 " + link).join("\n"),
+    { disable_web_page_preview: true }
   );
 });
 
-// --- PHẦN GIỮ BOT CHẠY TRÊN RENDER (BẮT BUỘC) ---
+// --- PHẦN GIỮ BOT CHẠY TRÊN RENDER ---
 bot.launch({ dropPendingUpdates: true }).catch(err => console.error(err));
 
 const PORT = process.env.PORT || 3000;
