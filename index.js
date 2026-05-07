@@ -26,10 +26,9 @@ bot.start(async (ctx) => {
 });
 
 bot.action("join", async (ctx) => {
-  await ctx.answerCbQuery();
   const userId = ctx.from?.id;
   if (userId) joinedUsers.add(userId);
-  await ctx.reply(`👉 Bấm vào link này để tham gia:\n${JOIN_LINK}`);
+  await ctx.answerCbQuery(undefined, { url: JOIN_LINK });
 });
 
 bot.action("getlink", async (ctx) => {
