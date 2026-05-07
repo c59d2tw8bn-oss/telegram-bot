@@ -27,18 +27,22 @@ bot.start(async (ctx) => {
 
 bot.action("join", async (ctx) => {
   await ctx.answerCbQuery();
-  const userId = ctx.from?.id;
+  const userId = ctx.from && ctx.from.id;
   if (userId) joinedUsers.add(userId);
-  await ctx.editMessageReplyMarkup(
-    Markup.inlineKeyboard([
-      [Markup.button.url("➡️ Tham gia bot", JOIN_LINK)],
-      [Markup.button.callback("🔗 Lấy link nhóm", "getlink")],
-    ]).reply_markup
+  await ctx.editMessageText(
+    "👋 Chào mừng bạn!\n\nBấm *Tham gia* trước, sau đó bấm *Lấy link nhóm* để nhận link!",
+    {
+      parse_mode: "Markdown",
+      ...Markup.inlineKeyboard([
+        [Markup.button.url("➡️ Tham gia bot", JOIN_LINK)],
+        [Markup.button.callback("🔗 Lấy link nhóm", "getlink")],
+      ]),
+    }
   );
 });
 
 bot.action("getlink", async (ctx) => {
-  const userId = ctx.from?.id;
+  const userId = ctx.from && ctx.from.id;
   if (!userId || !joinedUsers.has(userId)) {
     await ctx.answerCbQuery("⚠️ Bạn cần bấm Tham gia trước!", { show_alert: true });
     return;
@@ -46,7 +50,7 @@ bot.action("getlink", async (ctx) => {
   await ctx.answerCbQuery();
   await ctx.reply(
     "🎉 Đây là link nhóm dành cho bạn:\n\n" +
-      GROUP_LINKS.map((link) => `👉 ${link}`).join("\n")
+      GROUP_LINKS.map((link) => "👉 " + link).join("\n")
   );
 });
 
@@ -61,5 +65,5 @@ http.createServer((req, res) => {
   res.writeHead(200);
   res.end("Bot is running!");
 }).listen(PORT, () => {
-  console.log(`Keep-alive server on port ${PORT}`);
+  console.log("Keep-alive server on port " + PORT);
 });
